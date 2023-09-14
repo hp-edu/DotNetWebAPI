@@ -19,7 +19,22 @@ public class TodoController : ControllerBase
     [Route("task")]
     public async Task<IActionResult> GetTasks()
     {
-        return Ok(tasks);
+        return Ok(tasks); //200
+    }
+
+    [HttpGet]
+    [Route("task/{id}", Name = "GetTaskById")]
+    public async Task<IActionResult> GetTasks(Guid id)
+    {
+        var task = tasks.Where(o => o.Id == id).SingleOrDefault();
+        if (task != null)
+        {
+            return Ok(task); //200
+        }
+        else
+        {
+            return NotFound(); //404
+        }
     }
 
     [HttpPost]
@@ -31,7 +46,7 @@ public class TodoController : ControllerBase
         todo.Task = task.Task;
         todo.IsDone = false;
         tasks.Add(todo);
-        return Ok(todo.Id);
+        return CreatedAtRoute("GetTaskById", new { id = todo.Id }, todo);
     }
 
     [HttpPut]
@@ -39,8 +54,15 @@ public class TodoController : ControllerBase
     public async Task<IActionResult> UpdateTask(Guid id, TaskModel taskModel)
     {
         var task = tasks.Where(o => o.Id == id).SingleOrDefault();
-        if (task != null) task.Task = taskModel.Task;
-        return Ok(task);
+        if (task != null)
+        {
+            task.Task = taskModel.Task;
+            return Ok(task); //200
+        }
+        else
+        {
+            return NotFound(); //404
+        }
     }
 
     [HttpDelete]
@@ -48,9 +70,15 @@ public class TodoController : ControllerBase
     public async Task<IActionResult> DeleteTask(Guid id)
     {
         var task = tasks.Where(o => o.Id == id).SingleOrDefault();
-        if (task != null) tasks.Remove(task);
-        return Ok();
-
+        if (task != null)
+        {
+            tasks.Remove(task);
+            return NoContent(); //204
+        }
+        else
+        {
+            return NotFound(); //404
+        }
     }
 
 }
