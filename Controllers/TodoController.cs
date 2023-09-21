@@ -37,6 +37,21 @@ public class TodoController : ControllerBase
         }
     }
 
+    [HttpPatch]
+    [Route("task/{id}/t", Name = "GetTaskById")]
+    public async Task<IActionResult> GetTasks(Guid id)
+    {
+        var task = tasks.Where(o => o.Id == id).SingleOrDefault();
+        if (task != null)
+        {
+            return Ok(task); //200
+        }
+        else
+        {
+            return NotFound(); //404
+        }
+    }
+
     [HttpPost]
     [Route("task")]
     public async Task<IActionResult> CreateTask(TaskModel task)
