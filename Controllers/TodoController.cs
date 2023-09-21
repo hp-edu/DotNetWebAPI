@@ -38,12 +38,13 @@ public class TodoController : ControllerBase
     }
 
     [HttpPatch]
-    [Route("task/{id}/t", Name = "GetTaskById")]
-    public async Task<IActionResult> GetTasks(Guid id)
+    [Route("task/{id}/toggle")]
+    public async Task<IActionResult> ToggleTask(Guid id)
     {
         var task = tasks.Where(o => o.Id == id).SingleOrDefault();
         if (task != null)
         {
+            task.IsDone = !task.IsDone;
             return Ok(task); //200
         }
         else
