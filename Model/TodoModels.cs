@@ -10,5 +10,6 @@ public class TodoModel
 public class TaskModel
 {
     public string Task { get; set; }
+    public int DueDate { get; set; }
 
 }

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      table,
+      th,
+      td {
+        border: 1px solid black;
+      }
+
+      th,
+      td {
+        padding: 15px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f4f4f4;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="form-group">
+      <label for="taskId">Task ID (for update, toggle and delete)</label>
+      <input type="text" id="taskId" name="taskId" />
+    </div>
+
+    <div class="form-group">
+      <label for="taskDescription">Task Description</label>
+      <input type="text" id="taskDescription" name="taskDescription" />
+    </div>
+
+    <button type="button" onclick="createTask()">Create Task</button>
+    <button type="button" onclick="updateTask()">Update Task</button>
+    <button type="button" onclick="toggleTask()">Toggle Task Status</button>
+    <button type="button" onclick="deleteTask()">Delete Task</button>
+
+    <h2>All Tasks</h2>
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Description</th>
+        <th>Status</th>
+      </tr>
+    </table>
+
+    <script>
+      const API_ENDPOINT = "http://localhost:5241/Todo";
+
+      async function fetchTasks() {
+        try {
+          const response = await fetch(`${API_ENDPOINT}/task`);
+          const data = await response.json();
+          const table = document.querySelector("table");
+          table.innerHTML = `
+                    <tr>
+                        <th>ID</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                    </tr>
+                `;
+          data.forEach((task) => {
+            table.innerHTML += `
+                        <tr>
+                            <td>${task.id}</td>
+                            <td>${task.task}</td>
+                            <td>${task.isDone}</td>
+                        </tr>
+                    `;
+          });
+        } catch (error) {
+          console.error("Error fetching tasks", error);
+        }
+      }
+
+      async function createTask() {
+        try {
+          const taskDescription =
+            document.querySelector("#taskDescription").value;
+          await fetch(`${API_ENDPOINT}/task`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ task: taskDescription }),
+          });
+          await fetchTasks();
+        } catch (error) {
+          console.error("Error creating task", error);
+        }
+      }
+
+      async function updateTask() {
+        try {
+          const taskId = document.querySelector("#taskId").value;
+          const taskDescription =
+            document.querySelector("#taskDescription").value;
+          await fetch(`${API_ENDPOINT}/task/${taskId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ task: taskDescription }),
+          });
+          await fetchTasks();
+        } catch (error) {
+          console.error("Error updating task", error);
+        }
+      }
+
+      async function toggleTask() {
+        try {
+          const taskId = document.querySelector("#taskId").value;
+          await fetch(`${API_ENDPOINT}/task/${taskId}/toggle`, {
+            method: "PATCH",
+          });
+          await fetchTasks();
+        } catch (error) {
+          console.error("Error toggling task status", error);
+        }
+      }
+
+      async function deleteTask() {
+        try {
+          const taskId = document.querySelector("#taskId").value;
+          await fetch(`${API_ENDPOINT}/task/${taskId}`, {
+            method: "DELETE",
+          });
+          await fetchTasks();
+        } catch (error) {
+          console.error("Error deleting task", error);
+        }
+      }
+
+      fetchTasks();
+    </script>
+  </body>
+</html>
